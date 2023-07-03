@@ -2,7 +2,7 @@ import 'package:buildcondition/buildcondition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cardeal/cubit/app_cubit.dart';
-import 'package:simple_star_rating/simple_star_rating.dart';
+import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'app_cache.dart';
 import 'car_details_screen.dart';
 import 'components/components.dart';
@@ -22,7 +22,7 @@ class UserProfileScreen extends StatelessWidget {
               foregroundColor: Colors.black,
               actions: [
                 IconButton(
-                  icon: Icon(Icons.star),
+                  icon: const Icon(Icons.star),
                   onPressed: () {
                     showRateDialog(context);
                   },
@@ -51,7 +51,7 @@ class UserProfileScreen extends StatelessWidget {
                             child: Text(
                               "Name: $name",
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                           ),
@@ -77,9 +77,9 @@ class UserProfileScreen extends StatelessWidget {
                                 const SizedBox(
                                   width: 7,
                                 ),
-                                SimpleStarRating(
-                                  rating: AppCubit().get(context).rate,
-                                  onRated: (rating) {},
+                                RatingStars(
+                                  valueLabelVisibility: false,
+                                  value: AppCubit().get(context).rate,
                                 )
                               ],
                             ),
@@ -155,23 +155,39 @@ class UserProfileScreen extends StatelessWidget {
           return BlocConsumer<AppCubit, AppState>(
             listener: (context, state) {},
             builder: (context, state) {
-              double rate = AppCubit().get(context).rate;
+              double rate = 0.0;
               return Dialog(
-                  child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SimpleStarRating(
-                    isReadOnly: false,
-                    allowHalfRating: false,
-                    rating: rate,
-                    onRated: (rating) {
-                      AppCubit()
-                          .get(context)
-                          .rateUser(id: id, rate: rating?.round());
-                      popNavigation(context);
-                    },
-                  ),
-                ],
+                  child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    StatefulBuilder(builder: (context, setState) {
+                      return RatingStars(
+                        valueLabelVisibility: false,
+                        value: rate,
+                        starSize: 25,
+                        animationDuration: const Duration(milliseconds: 1400),
+                        onValueChanged: (rating) {
+                          setState(
+                            () {
+                              rate = rating;
+                            },
+                          );
+                          Future.delayed(
+                            const Duration(milliseconds: 1400),
+                            () {
+                              popNavigation(context);
+                            },
+                          );
+                          AppCubit()
+                              .get(context)
+                              .rateUser(id: id, rate: rating.round());
+                        },
+                      );
+                    }),
+                  ],
+                ),
               ));
             },
           );

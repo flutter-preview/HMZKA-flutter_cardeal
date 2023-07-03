@@ -10,16 +10,17 @@ import 'cubit/app_cubit.dart';
 import 'models/car_model.dart';
 
 class CarDetailsScreen extends StatelessWidget {
-  CarDetailsScreen({super.key, required this.model});
+  CarDetailsScreen({super.key, required this.model, this.isMe});
   CarModel model;
-
+  bool? isMe;
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppState>(
       listener: (context, state) {},
       builder: (context, state) {
         String id = model.owner!.split(",").first;
-        bool isUser = id == CacheHelper.getData(key: "id");
+        bool isUser = isMe ?? id == CacheHelper.getData(key: "id");
+
         return SafeArea(
           child: Scaffold(
             extendBodyBehindAppBar: true,

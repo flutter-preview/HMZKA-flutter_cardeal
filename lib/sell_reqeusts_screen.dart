@@ -65,29 +65,36 @@ class SellRequestsScreen extends StatelessWidget {
                                 fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                           Text(
-                              "${sellRequest[index].price?.split('.').first} \$")
+                              "${sellRequest[index].price?.split('.').first} \$"),
+                          sellRequest[index].status == "pending"
+                              ? SizedBox()
+                              : Text("Status : ${sellRequest[index].status}")
                         ],
                       ),
                     ),
-                    Column(
-                      children: [
-                        GestureDetector(
-                            onTap: () {
-                              AppCubit().get(context).sellAction(
-                                  id: sellRequest[index].id, action: "accept");
-                            },
-                            child: const Icon(Icons.task_alt)),
-                        const SizedBox(
-                          height: 7,
-                        ),
-                        GestureDetector(
-                            onTap: () {
-                              AppCubit().get(context).sellAction(
-                                  id: sellRequest[index].id, action: "reject");
-                            },
-                            child: const Icon(Icons.delete))
-                      ],
-                    )
+                    sellRequest[index].status == "pending"
+                        ? Column(
+                            children: [
+                              GestureDetector(
+                                  onTap: () {
+                                    AppCubit().get(context).sellAction(
+                                        id: sellRequest[index].id,
+                                        action: "accept");
+                                  },
+                                  child: const Icon(Icons.task_alt)),
+                              const SizedBox(
+                                height: 7,
+                              ),
+                              GestureDetector(
+                                  onTap: () {
+                                    AppCubit().get(context).sellAction(
+                                        id: sellRequest[index].id,
+                                        action: "reject");
+                                  },
+                                  child: const Icon(Icons.delete))
+                            ],
+                          )
+                        : const SizedBox()
                   ],
                 );
               },

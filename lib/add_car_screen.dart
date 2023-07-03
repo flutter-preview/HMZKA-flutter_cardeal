@@ -62,7 +62,7 @@ class _AddCarScreenState extends State<AddCarScreen> {
                           .toList(),
                       hint: const Text("Manufacturer"),
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value == null) {
                           return "This field is required";
                         }
                       },
@@ -115,7 +115,7 @@ class _AddCarScreenState extends State<AddCarScreen> {
                                       ))
                                   .toList(),
                               validator: (value) {
-                                if (value!.isEmpty) {
+                                if (value == null) {
                                   return "This field is required";
                                 }
                               },
@@ -149,7 +149,7 @@ class _AddCarScreenState extends State<AddCarScreen> {
                                         ))
                                     .toList(),
                                 validator: (value) {
-                                  if (value!.isEmpty) {
+                                  if (value == null) {
                                     return "This field is required";
                                   }
                                 },
@@ -168,7 +168,7 @@ class _AddCarScreenState extends State<AddCarScreen> {
                                     .toList(),
                                 hint: const Text("Fuel"),
                                 validator: (value) {
-                                  if (value!.isEmpty) {
+                                  if (value == null) {
                                     return "This field is required";
                                   }
                                 },
@@ -190,7 +190,7 @@ class _AddCarScreenState extends State<AddCarScreen> {
                                   .toList(),
                               hint: const Text("Condition"),
                               validator: (value) {
-                                if (value!.isEmpty) {
+                                if (value == null) {
                                   return "This field is required";
                                 }
                               },

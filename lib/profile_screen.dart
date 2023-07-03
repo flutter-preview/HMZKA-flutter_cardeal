@@ -73,7 +73,11 @@ class ProfileScreen extends StatelessWidget {
                           return GestureDetector(
                             onTap: () {
                               pushNavigation(
-                                  context, CarDetailsScreen(model: e));
+                                  context,
+                                  CarDetailsScreen(
+                                    model: e,
+                                    isMe: true,
+                                  ));
                             },
                             child: Card(
                               shadowColor: Colors.black87,

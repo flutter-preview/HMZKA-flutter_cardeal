@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: getMaterialColor(Colors.black),
         ),
-        home: MainScreen(),
+        home: LoginScreen(),
       ),
     );
   }
