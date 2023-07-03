@@ -57,6 +57,8 @@ class AppGetUserCarLoadingState extends AppState {}
 
 class AppGetUserCarSuccessState extends AppState {}
 
+class AppGetUserSuccessState extends AppState {}
+
 class AppGetUserCarErrorState extends AppState {}
 
 class AppSearchCarLoadingState extends AppState {}
@@ -70,3 +72,23 @@ class AppSearchCarPartLoadingState extends AppState {}
 class AppSearchCarPartSuccessState extends AppState {}
 
 class AppSearchCarPartErrorState extends AppState {}
+
+class AppFilterState extends AppState {}
+
+class AppGetBuyRequestsLoadingState extends AppState {}
+
+class AppGetBuyRequestsSuccessState extends AppState {}
+
+class AppGetBuyRequestsErrorState extends AppState {}
+
+class AppGetSellRequestsLoadingState extends AppState {}
+
+class AppGetSellRequestsSuccessState extends AppState {}
+
+class AppGetSellRequestsErrorState extends AppState {}
+
+class AppRequestCarLoadingState extends AppState {}
+
+class AppRequestCarSuccessState extends AppState {}
+
+class AppRequestCarErrorState extends AppState {}

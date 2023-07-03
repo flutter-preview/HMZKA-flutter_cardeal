@@ -1,8 +1,11 @@
+import 'package:buildcondition/buildcondition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cardeal/cubit/app_cubit.dart';
 import 'package:simple_star_rating/simple_star_rating.dart';
 import 'app_cache.dart';
+import 'car_details_screen.dart';
+import 'components/components.dart';
 
 class UserProfileScreen extends StatelessWidget {
   UserProfileScreen({super.key, required this.name, required this.id});
@@ -20,7 +23,9 @@ class UserProfileScreen extends StatelessWidget {
               actions: [
                 IconButton(
                   icon: Icon(Icons.star),
-                  onPressed: () {},
+                  onPressed: () {
+                    showRateDialog(context);
+                  },
                 )
               ],
             ),
@@ -59,15 +64,85 @@ class UserProfileScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(15.0),
                           child: SizedBox(
                             width: double.infinity,
-                            child: Text(
-                              "Rate: ${CacheHelper.getData(key: "email")}",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Rate: ",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(
+                                  width: 7,
+                                ),
+                                SimpleStarRating(
+                                  rating: AppCubit().get(context).rate,
+                                  onRated: (rating) {},
+                                )
+                              ],
                             ),
                           ),
                         ),
                       ),
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.8,
+                        children: AppCubit().get(context).userCar.map((e) {
+                          return GestureDetector(
+                            onTap: () {
+                              pushNavigation(
+                                  context, CarDetailsScreen(model: e));
+                            },
+                            child: Card(
+                              shadowColor: Colors.black87,
+                              elevation: 8,
+                              clipBehavior: Clip.antiAlias,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              child: Column(
+                                children: [
+                                  Image.network(
+                                    "${e.imageUrl}",
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset(
+                                      "assets/images/cardeal.png",
+                                      width:
+                                          MediaQuery.of(context).size.width / 2,
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              5,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    height:
+                                        MediaQuery.of(context).size.height / 5,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Text(
+                                    "${e.make}",
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  Text("${e.model} ${e.year}"),
+                                  Text(
+                                    "${e.price}  S.P",
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      )
                     ])))));
       },
     );
@@ -75,24 +150,31 @@ class UserProfileScreen extends StatelessWidget {
 
   showRateDialog(context) {
     showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(builder: (context, setState) {
-        double rate = 0.0;
-        return Dialog(
-            child: Column(
-          children: [
-            SimpleStarRating(
-              isReadOnly: false,
-              allowHalfRating: true,
-              rating: rate,
-              onRated: (rating) {
-                rate = rating!;
-              },
-            ),
-            TextButton(onPressed: () {}, child: const Text("Rate"))
-          ],
-        ));
-      }),
-    );
+        context: context,
+        builder: (context) {
+          return BlocConsumer<AppCubit, AppState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              double rate = AppCubit().get(context).rate;
+              return Dialog(
+                  child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SimpleStarRating(
+                    isReadOnly: false,
+                    allowHalfRating: false,
+                    rating: rate,
+                    onRated: (rating) {
+                      AppCubit()
+                          .get(context)
+                          .rateUser(id: id, rate: rating?.round());
+                      popNavigation(context);
+                    },
+                  ),
+                ],
+              ));
+            },
+          );
+        });
   }
 }

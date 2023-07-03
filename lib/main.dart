@@ -26,12 +26,15 @@ class MyApp extends StatelessWidget {
       create: (context) => AppCubit()
         ..getCategories()
         ..getCars()
-        ..getMyCars(),
+        ..getMyCars()
+        ..getBuyRequest(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: snackbarKey,
-        theme: ThemeData(primarySwatch: getMaterialColor(Colors.black)),
-        home: LoginScreen(),
+        theme: ThemeData(
+          primarySwatch: getMaterialColor(Colors.black),
+        ),
+        home: MainScreen(),
       ),
     );
   }

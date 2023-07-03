@@ -6,6 +6,7 @@ import 'package:flutter_cardeal/app_cache.dart';
 import 'package:flutter_cardeal/dio_helper.dart';
 import 'package:flutter_cardeal/models/car_model.dart';
 import 'package:flutter_cardeal/models/car_part_model.dart';
+import 'package:flutter_cardeal/models/car_requests_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
 
@@ -27,6 +28,7 @@ class AppCubit extends Cubit<AppState> {
       emit(AppLoginSuccessState());
     }).catchError((error) {
       print(error.toString());
+      print(error.response.data);
       emit(AppLoginErrorState());
     });
   }
@@ -52,6 +54,7 @@ class AppCubit extends Cubit<AppState> {
 //================================================================================================
   List<CarModel> cars = [];
   getCars() {
+    cars = [];
     emit(AppGetCarsLoadingState());
     DioHelper.getData(path: "car/car-list/").then((value) {
       print(value?.data);
@@ -67,6 +70,7 @@ class AppCubit extends Cubit<AppState> {
 
   List<CarModel> myCars = [];
   getMyCars() {
+    myCars = [];
     emit(AppGetMyCarsLoadingState());
     DioHelper.getData(path: "user/${CacheHelper.getData(key: "id")}/cars/")
         .then((value) {
@@ -79,16 +83,80 @@ class AppCubit extends Cubit<AppState> {
     });
   }
 
+  List<CarRequestModel> buyRequest = [];
+  getBuyRequest() {
+    buyRequest = [];
+    emit(AppGetBuyRequestsLoadingState());
+    DioHelper.getData(path: "user/me/buy_requests/", headers: {
+      "Authorization": "token ${CacheHelper.getData(key: "token")}"
+    }).then((value) {
+      value?.data.forEach((e) {
+        buyRequest.add(CarRequestModel.fromJson(e));
+      });
+      print(value?.data);
+      emit(AppGetBuyRequestsSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(AppGetBuyRequestsErrorState());
+    });
+  }
+
+  List<CarRequestModel> sellRequests = [];
+  getSellRequest() {
+    sellRequests = [];
+    emit(AppGetSellRequestsLoadingState());
+    DioHelper.getData(path: "user/me/sell_requests/", headers: {
+      "Authorization": "token ${CacheHelper.getData(key: "token")}"
+    }).then((value) {
+      value?.data.forEach((e) {
+        sellRequests.add(CarRequestModel.fromJson(e));
+      });
+      print(value?.data);
+      emit(AppGetSellRequestsSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(AppGetSellRequestsErrorState());
+    });
+  }
+
   List<CarModel> userCar = [];
+  double rate = 0.0;
+  String name = "";
   getUserCar({required String id}) {
+    userCar = [];
     emit(AppGetUserCarLoadingState());
     DioHelper.getData(path: "user/$id/cars/").then((value) {
+      print(value?.data);
       value?.data.forEach((e) {
         userCar.add(CarModel.fromJson(e));
       });
+      print(userCar[0].color);
       emit(AppGetUserCarSuccessState());
     }).catchError((error) {
       emit(AppGetUserCarErrorState());
+    });
+  }
+
+  getUser(id) {
+    DioHelper.getData(path: "user/$id").then((value) {
+      print(value?.data);
+      rate = double.parse(value?.data.first["average_rating"]);
+      name = value?.data.first["name"];
+
+      emit(AppGetUserSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+    });
+  }
+
+  rateUser({required id, required rate}) {
+    DioHelper.postData(path: "user/rate/", data: {"value": rate, "user": id})
+        .then((value) {
+      print(value?.data);
+      getUser(id);
+    }).catchError((error) {
+      print(error.toString());
+      print(error.response.data);
     });
   }
 
@@ -157,11 +225,13 @@ class AppCubit extends Cubit<AppState> {
       "mileage": mileAge,
       "transmission": transmission,
       "type": type,
-      "year": year
+      "year": int.parse(year)
     }).then((value) {
-      price = value?.data;
+      price = "${value?.data}";
       emit(AppGetPriceCarSuccessState());
     }).catchError((error) {
+      print(error.toString());
+      print(error.response.data);
       emit(AppGetPriceCarErrorState());
     });
   }
@@ -176,6 +246,7 @@ class AppCubit extends Cubit<AppState> {
     String? minMileage,
     String? maxMileage,
   }) {
+    carSearch = [];
     emit(AppSearchCarLoadingState());
     DioHelper.getData(path: "car/car-list", queryParameters: {
       "manufacturer": manufacturer,
@@ -185,12 +256,54 @@ class AppCubit extends Cubit<AppState> {
       "min_mileage": minMileage,
       "max_mileage": maxMileage
     }).then((value) {
+      print(value?.data);
       value?.data.forEach((e) {
         carSearch.add(CarModel.fromJson(e));
       });
       emit(AppSearchCarSuccessState());
     }).catchError((error) {
       emit(AppSearchCarErrorState());
+    });
+  }
+
+  requestCar({required carID, required price}) {
+    DioHelper.postData(
+      path: "transactions/request",
+      data: {
+        "buyer": CacheHelper.getData(key: "id"),
+        "car": carID,
+        "price_suggested": price
+      },
+    ).then((value) {
+      print(value?.data);
+      getBuyRequest();
+      emit(AppRequestCarSuccessState());
+    }).catchError((error) {
+      print(error.response.data);
+      emit(AppRequestCarErrorState());
+    });
+  }
+
+  deleteCar({required id}) {
+    DioHelper.deleteData(path: "user/car-requests/$id/delete/", headers: {
+      "Authorization": "token ${CacheHelper.getData(key: "token")}"
+    }).then((value) {
+      getBuyRequest();
+    }).catchError((error) {
+      print(error.response.data);
+    });
+  }
+
+  sellAction({required id, required action}) {
+    DioHelper.postData(path: "user/me/$id/action/", data: {
+      "action": action
+    }, headers: {
+      "Authorization": "token ${CacheHelper.getData(key: "token")}"
+    }).then((value) {
+      print(value?.data);
+      getSellRequest();
+    }).catchError((error) {
+      print(error.toString());
     });
   }
 
@@ -226,6 +339,18 @@ class AppCubit extends Cubit<AppState> {
     });
   }
 
+  List filterList = [];
+  filter(value) {
+    if (value == 0) {
+      filterList = exactMatches;
+    } else if (value == 1) {
+      filterList = startwithMatches;
+    } else if (value == 2) {
+      filterList = suggestedMatches;
+    }
+    emit(AppFilterState());
+  }
+
   List<CarPartModel> exactMatches = [];
   List<CarPartModel> startwithMatches = [];
   List<CarPartModel> suggestedMatches = [];
@@ -234,12 +359,18 @@ class AppCubit extends Cubit<AppState> {
     String? minPrice,
     String? maxPrice,
   }) {
+    filterList = [];
+    exactMatches = [];
+    startwithMatches = [];
+    suggestedMatches = [];
+
     emit(AppSearchCarPartLoadingState());
     DioHelper.getData(path: "carpart/part", queryParameters: {
       "name": name,
       "price_range_min": minPrice,
-      "max_range_max": maxPrice
+      "price_range_max": maxPrice
     }).then((value) {
+      print(value?.data);
       value?.data["startswith_matches"].forEach((e) {
         startwithMatches.add(CarPartModel.fromJson(e));
       });

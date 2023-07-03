@@ -46,7 +46,7 @@ class _AddCarScreenState extends State<AddCarScreen> {
       listener: (context, state) {},
       builder: (context, state) {
         var cubit = AppCubit().get(context);
-
+        priceController.text = cubit.price?.split(".").first ?? "";
         return SingleChildScrollView(
             child: Form(
                 key: formKey,
@@ -62,7 +62,7 @@ class _AddCarScreenState extends State<AddCarScreen> {
                           .toList(),
                       hint: const Text("Manufacturer"),
                       validator: (value) {
-                        if (value!.isEmpty) {
+                        if (value.isEmpty) {
                           return "This field is required";
                         }
                       },
@@ -225,7 +225,16 @@ class _AddCarScreenState extends State<AddCarScreen> {
                     },
                         keyboardType: TextInputType.number,
                         suffix: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              AppCubit().get(context).getPrice(
+                                  manfuctrer: manufacturerController.text,
+                                  condition: conditionController.text,
+                                  type: typeController.text,
+                                  feul: fuelController.text,
+                                  transmission: transmissionController.text,
+                                  mileAge: milageController.text,
+                                  year: yearController.text);
+                            },
                             icon: const ImageIcon(
                                 AssetImage("assets/images/magic.png")))),
                     Padding(

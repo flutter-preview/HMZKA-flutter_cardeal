@@ -1,18 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cardeal/app_cache.dart';
+import 'package:flutter_cardeal/components/components.dart';
+import 'package:flutter_cardeal/user_profile_screen.dart';
 
+import 'components/text_field.dart';
 import 'cubit/app_cubit.dart';
 import 'models/car_model.dart';
 
 class CarDetailsScreen extends StatelessWidget {
   CarDetailsScreen({super.key, required this.model});
   CarModel model;
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppState>(
       listener: (context, state) {},
       builder: (context, state) {
+        String id = model.owner!.split(",").first;
+        bool isUser = id == CacheHelper.getData(key: "id");
         return SafeArea(
           child: Scaffold(
             extendBodyBehindAppBar: true,
@@ -34,20 +41,27 @@ class CarDetailsScreen extends StatelessWidget {
                 ),
               ),
               actions: [
-                IconButton(
-                  onPressed: () {
-                    AppCubit().getUserCar(id: model.owner!.split(',').first);
-                  },
-                  icon: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: const BoxDecoration(
-                        color: Colors.black, shape: BoxShape.circle),
-                    child: const Icon(
-                      CupertinoIcons.profile_circled,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                isUser
+                    ? const SizedBox()
+                    : IconButton(
+                        onPressed: () {
+                          pushNavigation(
+                              context,
+                              UserProfileScreen(
+                                  id: id, name: model.owner!.split(",").last));
+                          AppCubit().get(context).getUserCar(id: id);
+                          AppCubit().get(context).getUser(id);
+                        },
+                        icon: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                              color: Colors.black, shape: BoxShape.circle),
+                          child: const Icon(
+                            CupertinoIcons.profile_circled,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
               ],
             ),
             body: SingleChildScrollView(
@@ -90,7 +104,7 @@ class CarDetailsScreen extends StatelessWidget {
                             style: const TextStyle(fontSize: 18),
                           ),
                           const SizedBox(
-                            height: 30,
+                            height: 20,
                           ),
                           Card(
                             color: Colors.grey.shade200,
@@ -218,7 +232,17 @@ class CarDetailsScreen extends StatelessWidget {
                           Text(
                             "${model.description}",
                             style: const TextStyle(fontSize: 18),
-                          )
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          !isUser
+                              ? ElevatedButton(
+                                  onPressed: () {
+                                    showDialoge(context);
+                                  },
+                                  child: Text("Buy"))
+                              : SizedBox(),
                         ],
                       ),
                     ),
@@ -230,5 +254,46 @@ class CarDetailsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  showDialoge(context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          var priceController = TextEditingController();
+          var key = GlobalKey<FormState>();
+          return Dialog(
+            child: BlocBuilder<AppCubit, AppState>(
+              builder: (context, state) {
+                return Form(
+                  key: key,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MyTextField().build(context,
+                          lable: const Text("Price"),
+                          hint: "Suggestted Price",
+                          controller: priceController, validator: (value) {
+                        if (value!.isEmpty) {
+                          return "This field is required";
+                        }
+                        return null;
+                      }),
+                      ElevatedButton(
+                          onPressed: () {
+                            if (key.currentState!.validate()) {
+                              AppCubit().get(context).requestCar(
+                                  carID: model.id, price: priceController.text);
+                              popNavigation(context);
+                            }
+                          },
+                          child: const Text("Request car"))
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        });
   }
 }

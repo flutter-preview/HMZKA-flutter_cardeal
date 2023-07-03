@@ -29,6 +29,10 @@ class _LoginScreenState extends State<LoginScreen> {
       listener: (context, state) {
         if (state is AppLoginSuccessState) {
           pushAndRemoveUntil(context, MainScreen());
+          AppCubit().get(context).getMyCars();
+          AppCubit().get(context).getBuyRequest();
+          AppCubit().get(context).getCategories();
+          AppCubit().get(context).getCars();
         } else if (state is AppLoginErrorState) {
           showSnackBarr(msg: "Something went wrong");
         }

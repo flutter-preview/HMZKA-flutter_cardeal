@@ -1,10 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cardeal/add_car_screen.dart';
+import 'package:flutter_cardeal/app_cache.dart';
 import 'package:flutter_cardeal/categories_screen.dart';
-import 'package:flutter_cardeal/favorites_screen.dart';
+import 'package:flutter_cardeal/components/components.dart';
+import 'package:flutter_cardeal/buy_reqeusts_screen.dart';
+import 'package:flutter_cardeal/cubit/app_cubit.dart';
 import 'package:flutter_cardeal/home_screen.dart';
+import 'package:flutter_cardeal/login_screen.dart';
 import 'package:flutter_cardeal/profile_screen.dart';
+import 'package:flutter_cardeal/search_carpart_screen.dart';
+import 'package:flutter_cardeal/search_screen.dart';
+import 'package:flutter_cardeal/sell_reqeusts_screen.dart';
 
 class MainScreen extends StatefulWidget {
   MainScreen({super.key});
@@ -19,18 +26,39 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const CategoriesScreen(),
     AddCarScreen(),
-    const FavoritesScreen(),
+    const BuyRequestScreen(),
     const ProfileScreen()
   ];
-  List buttons = [
-    IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-    IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-    const SizedBox(),
-    IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
-    const SizedBox()
-  ];
+
   @override
   Widget build(BuildContext context) {
+    List buttons = [
+      IconButton(
+          onPressed: () {
+            pushNavigation(context, SearchScreen());
+          },
+          icon: const Icon(Icons.search)),
+      IconButton(
+          onPressed: () {
+            pushNavigation(context, SearchCarPart());
+            AppCubit().get(context).filter(0);
+          },
+          icon: const Icon(Icons.search)),
+      const SizedBox(),
+      IconButton(
+          onPressed: () {
+            pushNavigation(context, const SellRequestsScreen());
+            AppCubit().get(context).getSellRequest();
+          },
+          icon: const Icon(Icons.notifications)),
+      IconButton(
+        icon: Icon(Icons.logout),
+        onPressed: () {
+          pushAndRemoveUntil(context, LoginScreen());
+          CacheHelper.removeData();
+        },
+      )
+    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text("Car Deal"),

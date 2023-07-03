@@ -14,6 +14,7 @@ Widget dropdownButtonField(
       menuMaxHeight: getScreenSize(context).height / 3,
       items: items,
       hint: hint,
+      borderRadius: BorderRadius.circular(10),
       onChanged: onChanged,
       validator: validator,
       isExpanded: true,

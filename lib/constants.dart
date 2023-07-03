@@ -67,3 +67,6 @@ Map<String, dynamic> condition = {
 };
 final GlobalKey<ScaffoldMessengerState> snackbarKey =
     GlobalKey<ScaffoldMessengerState>();
+
+String baseUrl =
+    "http://ip172-18-0-6-cihgc9ggftqg00ael160-8000.direct.labs.play-with-docker.com//";

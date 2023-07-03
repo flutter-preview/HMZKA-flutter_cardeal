@@ -1,17 +1,19 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_cardeal/constants.dart';
 
 class DioHelper {
   static Dio? dio;
 
   static init() {
-    dio = Dio(BaseOptions(
-        baseUrl:
-            "http://ip172-18-0-36-cig6qe0gftqg00e2e9e0-8000.direct.labs.play-with-docker.com/"));
+    dio = Dio(BaseOptions(baseUrl: baseUrl));
   }
 
   static Future<Response?> getData(
-      {required String path, Map<String, dynamic>? queryParameters}) async {
-    return await dio?.get(path, queryParameters: queryParameters);
+      {required String path,
+      Map<String, dynamic>? queryParameters,
+      Map<String, dynamic>? headers}) async {
+    return await dio?.get(path,
+        queryParameters: queryParameters, options: Options(headers: headers));
   }
 
   static Future<Response?> postData(
@@ -35,7 +37,9 @@ class DioHelper {
   static Future<Response?> deleteData({
     required String path,
     Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
   }) async {
-    return await dio?.delete(path, queryParameters: queryParameters);
+    return await dio?.delete(path,
+        queryParameters: queryParameters, options: Options(headers: headers));
   }
 }
